@@ -113,6 +113,9 @@ export default function PDFViewerModal({ isOpen, onClose, shipment, company }) {
             <p className="font-bold text-slate-900 uppercase text-[10px] text-slate-400">Shipment Details</p>
             <p><span className="font-medium text-slate-500">Container No:</span> {shipment.shippingDetails?.containerNumber}</p>
             <p><span className="font-medium text-slate-500">Seal No:</span> {shipment.shippingDetails?.sealNumber}</p>
+            {shipment.shippingDetails?.electronicSealNumber && (
+              <p><span className="font-medium text-slate-500">Electronic Seal No:</span> <span className="font-mono font-semibold">{shipment.shippingDetails.electronicSealNumber}</span></p>
+            )}
             <p><span className="font-medium text-slate-500">Port of Loading:</span> {shipment.shippingDetails?.portOfLoading}</p>
             <p><span className="font-medium text-slate-500">Port of Discharge:</span> {shipment.shippingDetails?.portOfDischarge}</p>
             <p><span className="font-medium text-slate-500">Shipping Line:</span> {shipment.shippingDetails?.shippingLine}</p>

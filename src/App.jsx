@@ -23,6 +23,7 @@ import DocumentCenter from './pages/Documents/DocumentCenter';
 import UserManagement from './pages/Settings/UserManagement';
 import AuditLogList from './pages/AuditLogs/AuditLogList';
 import BackupRestore from './pages/Settings/BackupRestore';
+import GenericMasterPage from './pages/Masters/GenericMasterPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +61,7 @@ function ProtectedLayout() {
             <Route path="/customers" element={<CustomerMaster />} />
             <Route path="/products" element={<ProductMaster />} />
             <Route path="/company" element={<CompanyMaster />} />
+            <Route path="/masters/:type" element={<GenericMasterPage />} />
 
             <Route path="/quotations" element={<QuotationList />} />
             <Route path="/quotations/new" element={<QuotationForm />} />

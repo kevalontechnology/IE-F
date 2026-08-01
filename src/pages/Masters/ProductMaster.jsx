@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { masterApi } from '../../api/masterApi';
+import { genericMasterApi } from '../../api/genericMasterApi';
 import { useToast } from '../../context/ToastContext';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
+import SearchableSelect from '../../components/common/SearchableSelect';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 
 export default function ProductMaster() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [hsnCodes, setHsnCodes] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -19,7 +23,7 @@ export default function ProductMaster() {
 
   const [form, setForm] = useState({
     productName: '',
-    hsn: '',
+    hsn: '10063020',
     category: 'Agro Commodities',
     description: '',
     unit: 'KGS',
@@ -35,11 +39,17 @@ export default function ProductMaster() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await masterApi.getProducts({ page, limit: 10, search });
-      if (res.success) {
-        setProducts(res.data);
-        setTotal(res.meta?.total || res.data.length);
+      const [pRes, catRes, hsnRes] = await Promise.all([
+        masterApi.getProducts({ page, limit: 10, search }),
+        genericMasterApi.getAll('product_categories', { status: 'Active' }),
+        genericMasterApi.getAll('hsn_codes', { status: 'Active' }),
+      ]);
+      if (pRes.success) {
+        setProducts(pRes.data);
+        setTotal(pRes.meta?.total || pRes.data.length);
       }
+      if (catRes.success) setCategories(catRes.data);
+      if (hsnRes.success) setHsnCodes(hsnRes.data);
     } catch (err) {
       showToast(err.message || 'Failed to fetch products', 'error');
     } finally {

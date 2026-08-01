@@ -575,6 +575,22 @@ export default function ShipmentWizard() {
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium"
               />
             </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Electronic Seal Number (E-Seal)</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. ESEAL98765432"
+                value={shipmentData.shippingDetails.electronicSealNumber || ''}
+                onChange={(e) =>
+                  setShipmentData({
+                    ...shipmentData,
+                    shippingDetails: { ...shipmentData.shippingDetails, electronicSealNumber: e.target.value },
+                  })
+                }
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-semibold text-brand-700"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">

@@ -186,12 +186,34 @@ export default function ProductMaster() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">HSN Code</label>
-              <input
-                type="text"
-                required
+              <SearchableSelect
+                label="Product Category"
+                placeholder="Select Category..."
+                value={form.category}
+                onChange={(val) => setForm({ ...form, category: val })}
+                options={categories.map((c) => ({ value: c.categoryName, label: c.categoryName, subLabel: c.description }))}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <SearchableSelect
+                label="HSN Code"
+                placeholder="Select HSN Code..."
                 value={form.hsn}
-                onChange={(e) => setForm({ ...form, hsn: e.target.value })}
+                onChange={(val) => setForm({ ...form, hsn: val })}
+                options={hsnCodes.map((h) => ({ value: h.hsnCode, label: h.hsnCode, subLabel: `${h.description} (${h.gstPercentage}% GST)` }))}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Default Rate ($)</label>
+              <input
+                type="number"
+                step="0.01"
+                required
+                value={form.defaultRate}
+                onChange={(e) => setForm({ ...form, defaultRate: parseFloat(e.target.value) || 0 })}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none"
               />
             </div>

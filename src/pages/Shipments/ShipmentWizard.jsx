@@ -609,6 +609,37 @@ export default function ShipmentWizard() {
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <SearchableSelect
+                label="Container Quantity / Type"
+                placeholder="Select Container Quantity..."
+                value={shipmentData.shippingDetails.containerSize}
+                onChange={(val) =>
+                  setShipmentData({
+                    ...shipmentData,
+                    shippingDetails: { ...shipmentData.shippingDetails, containerSize: val },
+                  })
+                }
+                options={containerQuantitiesList.map((cq) => ({ value: cq.quantityName, label: cq.quantityName, subLabel: cq.description }))}
+              />
+            </div>
+            <div>
+              <SearchableSelect
+                label="Export Terms (Incoterms)"
+                placeholder="Select Export Term..."
+                value={shipmentData.shippingDetails.incoterms}
+                onChange={(val) =>
+                  setShipmentData({
+                    ...shipmentData,
+                    shippingDetails: { ...shipmentData.shippingDetails, incoterms: val },
+                  })
+                }
+                options={exportTermsList.map((et) => ({ value: et.term, label: et.term, subLabel: et.description }))}
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-3 gap-4">
             <div>
               <SearchableSelect

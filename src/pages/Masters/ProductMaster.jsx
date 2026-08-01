@@ -12,6 +12,7 @@ export default function ProductMaster() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [hsnCodes, setHsnCodes] = useState([]);
+  const [unitsList, setUnitsList] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -39,10 +40,11 @@ export default function ProductMaster() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const [pRes, catRes, hsnRes] = await Promise.all([
+      const [pRes, catRes, hsnRes, uRes] = await Promise.all([
         masterApi.getProducts({ page, limit: 10, search }),
         genericMasterApi.getAll('product_categories', { status: 'Active' }),
         genericMasterApi.getAll('hsn_codes', { status: 'Active' }),
+        genericMasterApi.getAll('units', { status: 'Active' }),
       ]);
       if (pRes.success) {
         setProducts(pRes.data);
@@ -50,6 +52,7 @@ export default function ProductMaster() {
       }
       if (catRes.success) setCategories(catRes.data);
       if (hsnRes.success) setHsnCodes(hsnRes.data);
+      if (uRes.success) setUnitsList(uRes.data);
     } catch (err) {
       showToast(err.message || 'Failed to fetch products', 'error');
     } finally {
@@ -219,19 +222,15 @@ export default function ProductMaster() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Unit</label>
-              <select
+              <SearchableSelect
+                label="Unit Master"
+                placeholder="Select Unit..."
                 value={form.unit}
-                onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none"
-              >
-                <option value="KGS">KGS</option>
-                <option value="MTS">MTS</option>
-                <option value="PCS">PCS</option>
-                <option value="BOXES">BOXES</option>
-              </select>
+                onChange={(val) => setForm({ ...form, unit: val })}
+                options={unitsList.map((u) => ({ value: u.unitName, label: u.unitName, subLabel: `Multiplier x${u.multiplier} (${u.description})` }))}
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Default Rate ($)</label>

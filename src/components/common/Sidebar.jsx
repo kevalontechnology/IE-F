@@ -32,6 +32,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     { title: 'Export Terms', path: '/masters/export_terms', icon: Ship, roles: ['Admin'] },
     { title: 'HSN Codes', path: '/masters/hsn_codes', icon: FileText, roles: ['Admin'] },
     { title: 'Container Quantities', path: '/masters/container_quantities', icon: Ship, roles: ['Admin'] },
+    { title: 'Units Master', path: '/masters/units', icon: Package, roles: ['Admin'] },
     { title: 'User Approvals', path: '/users', icon: UserCheck, roles: ['Admin'] },
     { title: 'Company Settings', path: '/company', icon: Building2, roles: ['Admin'] },
     { title: 'Audit Logs', path: '/audit-logs', icon: Activity, roles: ['Admin'] },

@@ -71,4 +71,20 @@ export const MASTER_CONFIG = {
       { header: 'Description', accessor: 'description' },
     ],
   },
+  units: {
+    key: 'units',
+    displayName: 'Units Master',
+    singularName: 'Unit',
+    nameField: 'unitName',
+    fields: [
+      { name: 'unitName', label: 'Unit Name', type: 'text', required: true, placeholder: 'e.g. KGS, MTS, PCS, BOXES, SET' },
+      { name: 'multiplier', label: 'Multiplier Factor (e.g. 2 for SET to double Qty)', type: 'number', required: true, placeholder: '1' },
+      { name: 'description', label: 'Description', type: 'textarea', required: false, placeholder: 'Unit description' },
+    ],
+    tableColumns: [
+      { header: 'Unit Name', accessor: 'unitName' },
+      { header: 'Multiplier Factor', accessor: 'multiplier' },
+      { header: 'Description', accessor: 'description' },
+    ],
+  },
 };

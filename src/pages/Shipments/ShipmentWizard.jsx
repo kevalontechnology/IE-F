@@ -97,6 +97,7 @@ export default function ShipmentWizard() {
     status: 'Pending Logistics',
   });
 
+  const [unitsList, setUnitsList] = useState([]);
   const [savedShipment, setSavedShipment] = useState(null);
   const [showPDFModal, setShowPDFModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -107,7 +108,7 @@ export default function ShipmentWizard() {
   useEffect(() => {
     const loadMasters = async () => {
       try {
-        const [cRes, pRes, compRes, ptRes, etRes, cqRes, portRes, slRes] = await Promise.all([
+        const [cRes, pRes, compRes, ptRes, etRes, cqRes, portRes, slRes, uRes] = await Promise.all([
           masterApi.getCustomers({ limit: 100 }),
           masterApi.getProducts({ limit: 100 }),
           masterApi.getCompany(),
@@ -116,6 +117,7 @@ export default function ShipmentWizard() {
           genericMasterApi.getAll('container_quantities', { status: 'Active' }),
           masterApi.getPorts(),
           masterApi.getShippingLines(),
+          genericMasterApi.getAll('units', { status: 'Active' }),
         ]);
         if (cRes.success) setCustomers(cRes.data);
         if (pRes.success) setProducts(pRes.data);
@@ -125,6 +127,7 @@ export default function ShipmentWizard() {
         if (cqRes.success) setContainerQuantitiesList(cqRes.data);
         if (portRes.success) setPortsList(portRes.data);
         if (slRes.success) setShippingLinesList(slRes.data);
+        if (uRes.success) setUnitsList(uRes.data);
       } catch (err) {
         console.error(err);
       }
@@ -190,6 +193,30 @@ export default function ShipmentWizard() {
   const handleItemChange = (idx, field, val) => {
     const newItems = [...shipmentData.items];
     newItems[idx][field] = val;
+
+    const qty = parseFloat(newItems[idx].quantity) || 0;
+    const rate = parseFloat(newItems[idx].rate) || 0;
+    const discount = parseFloat(newItems[idx].discount) || 0;
+    newItems[idx].amount = qty * rate * (1 - discount / 100);
+
+    recalculateShipmentTotals(newItems, shipmentData.shippingDetails.exchangeRate);
+  };
+
+  const handleUnitChange = (idx, selectedUnit) => {
+    const newItems = [...shipmentData.items];
+    newItems[idx].unit = selectedUnit;
+
+    const unitObj = unitsList.find((u) => u.unitName === selectedUnit);
+    if (unitObj && unitObj.multiplier && unitObj.multiplier > 1) {
+      const baseQty = newItems[idx].baseQuantity || newItems[idx].quantity || 1;
+      newItems[idx].baseQuantity = baseQty;
+      newItems[idx].quantity = baseQty * unitObj.multiplier;
+      showToast(`Unit '${selectedUnit}' multiplier (x${unitObj.multiplier}) applied. Quantity updated to ${newItems[idx].quantity}`, 'info');
+    } else {
+      if (newItems[idx].baseQuantity) {
+        newItems[idx].quantity = newItems[idx].baseQuantity;
+      }
+    }
 
     const qty = parseFloat(newItems[idx].quantity) || 0;
     const rate = parseFloat(newItems[idx].rate) || 0;
@@ -454,13 +481,22 @@ export default function ShipmentWizard() {
             {shipmentData.items.map((item, idx) => (
               <div key={idx} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 text-xs">
                 <div className="grid grid-cols-12 gap-3 items-center">
-                  <div className="col-span-5">
+                  <div className="col-span-4">
                     <SearchableSelect
                       label="Select Product"
                       placeholder="Search Product..."
                       value={item.product}
                       onChange={(val) => handleProductSelect(idx, val)}
                       options={products.map((p) => ({ value: p._id, label: p.productName, subLabel: `HSN: ${p.hsn}` }))}
+                    />
+                  </div>
+                  <div className="col-span-3">
+                    <SearchableSelect
+                      label="Unit Master"
+                      placeholder="Select Unit..."
+                      value={item.unit || 'KGS'}
+                      onChange={(val) => handleUnitChange(idx, val)}
+                      options={unitsList.map((u) => ({ value: u.unitName, label: u.unitName, subLabel: `x${u.multiplier} (${u.description})` }))}
                     />
                   </div>
                   <div className="col-span-2">
@@ -481,10 +517,6 @@ export default function ShipmentWizard() {
                       onChange={(e) => handleItemChange(idx, 'rate', parseFloat(e.target.value) || 0)}
                       className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg bg-white font-medium"
                     />
-                  </div>
-                  <div className="col-span-2 text-right">
-                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Line Amount</label>
-                    <p className="font-bold text-slate-900 pt-1">${item.amount?.toFixed(2)}</p>
                   </div>
                   <div className="col-span-1 text-right pt-4">
                     <button type="button" onClick={() => removeItemRow(idx)} className="p-1 text-slate-400 hover:text-rose-600">

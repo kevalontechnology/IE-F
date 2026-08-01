@@ -156,6 +156,7 @@ export default function QuotationList() {
   const columns = [
     { header: 'Quotation #', accessor: 'quotationNumber', cell: (row) => <span className="font-bold text-slate-900">{row.quotationNumber}</span> },
     { header: 'Customer', accessor: 'customerName' },
+    { header: 'Sales Rep', accessor: 'createdBy', cell: (row) => <span className="font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded text-[11px]">{row.createdBy?.fullName || 'Sales User'}</span> },
     { header: 'Date', accessor: 'createdAt', cell: (row) => new Date(row.createdAt).toLocaleDateString() },
     { header: 'Total (USD)', accessor: 'grandTotal', cell: (row) => <span className="font-semibold text-brand-700">${row.grandTotal?.toFixed(2)}</span> },
     { header: 'Status', accessor: 'status', cell: (row) => <StatusBadge status={row.status} /> },

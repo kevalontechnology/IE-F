@@ -25,7 +25,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     { title: 'Customers', path: '/customers', icon: Users, roles: ['Admin', 'Supervisor', 'Sales'] },
     { title: 'Products', path: '/products', icon: Package, roles: ['Admin', 'Supervisor', 'Sales'] },
     { title: 'Quotations', path: '/quotations', icon: FileText, roles: ['Admin', 'Supervisor', 'Sales'] },
-    { title: 'Shipments', path: '/shipments', icon: Ship, roles: ['Admin', 'Supervisor', 'Sales'] },
+    { title: 'Shipments', path: '/shipments', icon: Ship, roles: ['Admin', 'Supervisor'] },
     { title: 'Document Center', path: '/documents', icon: FileCheck, roles: ['Admin', 'Supervisor'] },
     { title: 'Payment Terms', path: '/masters/payment_terms', icon: Building2, roles: ['Admin'] },
     { title: 'Product Categories', path: '/masters/product_categories', icon: Package, roles: ['Admin'] },

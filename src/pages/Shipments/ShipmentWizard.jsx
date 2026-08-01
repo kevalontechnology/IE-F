@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { shipmentApi } from '../../api/shipmentApi';
 import { masterApi } from '../../api/masterApi';
+import { genericMasterApi } from '../../api/genericMasterApi';
 import { useToast } from '../../context/ToastContext';
 import SearchableSelect from '../../components/common/SearchableSelect';
 import PDFViewerModal from '../../components/pdf/PDFViewerModal';
@@ -22,6 +23,11 @@ export default function ShipmentWizard() {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [company, setCompany] = useState(null);
+  const [paymentTermsList, setPaymentTermsList] = useState([]);
+  const [exportTermsList, setExportTermsList] = useState([]);
+  const [containerQuantitiesList, setContainerQuantitiesList] = useState([]);
+  const [portsList, setPortsList] = useState([]);
+  const [shippingLinesList, setShippingLinesList] = useState([]);
 
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
 
@@ -61,7 +67,7 @@ export default function ShipmentWizard() {
     ],
     shippingDetails: {
       containerNumber: autoContainerNo,
-      containerSize: '20FT Standard',
+      containerSize: '1 x 20 FT',
       sealNumber: 'SEAL' + Math.floor(100000 + Math.random() * 900000),
       electronicSealNumber: '',
       totalPackages: 40,
@@ -101,14 +107,24 @@ export default function ShipmentWizard() {
   useEffect(() => {
     const loadMasters = async () => {
       try {
-        const [cRes, pRes, compRes] = await Promise.all([
+        const [cRes, pRes, compRes, ptRes, etRes, cqRes, portRes, slRes] = await Promise.all([
           masterApi.getCustomers({ limit: 100 }),
           masterApi.getProducts({ limit: 100 }),
           masterApi.getCompany(),
+          genericMasterApi.getAll('payment_terms', { status: 'Active' }),
+          genericMasterApi.getAll('export_terms', { status: 'Active' }),
+          genericMasterApi.getAll('container_quantities', { status: 'Active' }),
+          masterApi.getPorts(),
+          masterApi.getShippingLines(),
         ]);
         if (cRes.success) setCustomers(cRes.data);
         if (pRes.success) setProducts(pRes.data);
         if (compRes.success) setCompany(compRes.data);
+        if (ptRes.success) setPaymentTermsList(ptRes.data);
+        if (etRes.success) setExportTermsList(etRes.data);
+        if (cqRes.success) setContainerQuantitiesList(cqRes.data);
+        if (portRes.success) setPortsList(portRes.data);
+        if (slRes.success) setShippingLinesList(slRes.data);
       } catch (err) {
         console.error(err);
       }
@@ -358,17 +374,17 @@ export default function ShipmentWizard() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Terms</label>
-              <input
-                type="text"
+              <SearchableSelect
+                label="Payment Terms"
+                placeholder="Select Payment Term..."
                 value={shipmentData.customerDetails.paymentTerms}
-                onChange={(e) =>
+                onChange={(val) =>
                   setShipmentData({
                     ...shipmentData,
-                    customerDetails: { ...shipmentData.customerDetails, paymentTerms: e.target.value },
+                    customerDetails: { ...shipmentData.customerDetails, paymentTerms: val },
                   })
                 }
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium"
+                options={paymentTermsList.map((pt) => ({ value: pt.name, label: pt.name, subLabel: pt.description }))}
               />
             </div>
             <div>
@@ -595,48 +611,45 @@ export default function ShipmentWizard() {
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Port of Loading</label>
-              <input
-                type="text"
-                required
+              <SearchableSelect
+                label="Port of Loading"
+                placeholder="Select Loading Port..."
                 value={shipmentData.shippingDetails.portOfLoading}
-                onChange={(e) =>
+                onChange={(val) =>
                   setShipmentData({
                     ...shipmentData,
-                    shippingDetails: { ...shipmentData.shippingDetails, portOfLoading: e.target.value },
+                    shippingDetails: { ...shipmentData.shippingDetails, portOfLoading: val },
                   })
                 }
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium"
+                options={portsList.map((p) => ({ value: p.portName, label: p.portName, subLabel: `${p.portCode} (${p.type})` }))}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Port of Discharge</label>
-              <input
-                type="text"
-                required
+              <SearchableSelect
+                label="Port of Discharge"
+                placeholder="Select Discharge Port..."
                 value={shipmentData.shippingDetails.portOfDischarge}
-                onChange={(e) =>
+                onChange={(val) =>
                   setShipmentData({
                     ...shipmentData,
-                    shippingDetails: { ...shipmentData.shippingDetails, portOfDischarge: e.target.value },
+                    shippingDetails: { ...shipmentData.shippingDetails, portOfDischarge: val },
                   })
                 }
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium"
+                options={portsList.map((p) => ({ value: p.portName, label: p.portName, subLabel: `${p.portCode} (${p.type})` }))}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Shipping Line</label>
-              <input
-                type="text"
-                required
+              <SearchableSelect
+                label="Shipping Line"
+                placeholder="Select Shipping Line..."
                 value={shipmentData.shippingDetails.shippingLine}
-                onChange={(e) =>
+                onChange={(val) =>
                   setShipmentData({
                     ...shipmentData,
-                    shippingDetails: { ...shipmentData.shippingDetails, shippingLine: e.target.value },
+                    shippingDetails: { ...shipmentData.shippingDetails, shippingLine: val },
                   })
                 }
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium"
+                options={shippingLinesList.map((sl) => ({ value: sl.name, label: sl.name, subLabel: sl.code }))}
               />
             </div>
           </div>
